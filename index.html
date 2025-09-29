@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReConecta - Conectando pessoas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #6EC1E4;
+            --primary-dark: #5aa8c7;
+            --secondary: #BFA2DB;
+            --accent: #4CAF50;
+            --accent-dark: #45a049;
+            --white: #FFFFFF;
+            --light-gray: #F5F5F5;
+            --gray: #E0E0E0;
+            --dark-gray: #757575;
+            --text: #212121;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --button-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background: var(--white);
+            color: var(--text);
+            max-width: 100%;
+            margin: 0 auto;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .app-container {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            min-height: 100vh;
+            background: var(--white);
+        }
+
+        .status-bar {
+            height: 44px;
+            background: var(--white);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        .active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .container {
+            height: calc(100vh - 44px - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+        }
+
+        /* Splash Screen */
+        #splash {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            z-index: 1000;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background-color: var(--white);
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            animation: pulse 2s infinite;
+        }
+
+        .logo i {
+            font-size: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .app-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .app-tagline {
+            font-size: 16px;
+            font-weight: 400;
+            max-width: 80%;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-progress {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: var(--white);
+            border-radius: 2px;
+            animation: loading 2.5s ease-in-out;
+        }
+
+        .skip-splash {
+            position: absolute;
+            bottom: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Login Screen */
+        .form-container {
+            max-width: 100%;
+            padding: 0 16px;
+        }
+
+        .form-title {
+            text-align: center;
+            margin: 24px 0 32px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            color: var(--dark-gray);
+            z-index: 1;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 1px solid var(--gray);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--white);
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(110, 193, 228, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--white);
+            box-shadow: var(--button-shadow);
+        }
+
+        .btn-primary:active {
+            background: var(--accent-dark);
+        }
+
+        .social-login {
+            margin: 32px 0 24px;
+            text-align: center;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .divider::before {
+            margin-right: 16px;
+        }
+
+        .divider::after {
+            margin-left: 16px;
+        }
+
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .social-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--white);
+            color: var(--dark-gray);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--gray);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn:active {
+            transform: scale(0.95);
+            background-color: var(--light-gray);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 15px;
+            color: var(--dark-gray);
+        }
+
+        .signup-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Feed Screen */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+            color: var(--dark-gray);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-button:active {
+            background-color: var(--light-gray);
+        }
+
+        .profile-card {
+            background-color: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .profile-card:active {
+            transform: scale(0.98);
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 320px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            position: relative;
+        }
+
+        .profile-info {
+            padding: 20px;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .profile-details {
+            color: var(--dark-gray);
+            margin-bottom: 16px;
+            font-size: 15px;
+        }
+
+        .interests {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .interest-tag {
+            background-color: var(--secondary);
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action:active {
+            transform: scale(0.95);
+        }
+
+        .btn-skip {
+            background-color: var(--white);
+            color: var(--dark-gray);
+            border: 1px solid var(--gray);
+        }
+
+        .btn-skip:active {
+            background-color: var(--light-gray);
+        }
+
+        .btn-connect {
+            background: var(--accent);
+            color: var(--white);
+            box-shadow: var(--button-shadow);
+        }
+
+        .btn-connect:active {
+            background: var(--accent-dark);
+        }
+
+        /* Chat Screen */
+        .chat-list {
+            margin-top: 8px;
+        }
+
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .chat-item:active {
+            background-color: var(--light-gray);
+        }
+
+        .chat-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            margin-right: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .chat-preview {
+            color: var(--dark-gray);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-time {
+            color: var(--dark-gray);
+            font-size: 12px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .chat-container {
+            height: calc(100vh - 44px - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--gray);
+            background: var(--white);
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: all 0.2s;
+        }
+
+        .back-button:active {
+            background-color: var(--light-gray);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+            position: relative;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: messageAppear 0.3s ease;
+        }
+
+        .message-received {
+            background-color: var(--light-gray);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            color: var(--text);
+        }
+
+        .message-sent {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--dark-gray);
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message-received .message-time {
+            text-align: left;
+            color: var(--dark-gray);
+        }
+
+        .message-input-container {
+            display: flex;
+            padding: 16px;
+            background: var(--white);
+            border-top: 1px solid var(--gray);
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--gray);
+            border-radius: 20px;
+            font-size: 15px;
+            background: var(--light-gray);
+            margin-right: 12px;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .send-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--button-shadow);
+            transition: all 0.2s;
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Profile Screen */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            margin: 0 auto 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: var(--white);
+            box-shadow: var(--card-shadow);
+        }
+
+        .profile-name-large {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .profile-location {
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+
+        .profile-section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .profile-bio {
+            line-height: 1.6;
+            color: var(--dark-gray);
+            font-size: 15px;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            box-shadow: var(--button-shadow);
+            width: auto;
+            padding: 12px 24px;
+            display: inline-flex;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+            z-index: 100;
+            border-top: 1px solid var(--gray);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 8px 12px;
+            border-radius: 12px;
+            flex: 1;
+            max-width: 80px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item:active {
+            background-color: var(--light-gray);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes messageAppear {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* iOS-style scrollbar */
+        ::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <div>
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi" style="margin-left: 5px;"></i>
+                <i class="fas fa-battery-three-quarters" style="margin-left: 5px;"></i>
+            </div>
+        </div>
+
+        <!-- Splash Screen -->
+        <div id="splash" class="screen active">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+            </div>
+            <h1 class="app-name">ReConecta</h1>
+            <p class="app-tagline">Conectando pessoas pelos seus interesses</p>
+            
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            
+            <button class="skip-splash" onclick="skipSplash()">Pular</button>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="login" class="screen">
+            <div class="container">
+                <div class="form-container">
+                    <h2 class="form-title">Bem-vindo de volta</h2>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="input-field" placeholder="E-mail">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="input-field" placeholder="Senha">
+                    </div>
+                    <button class="btn btn-primary" id="login-btn">Entrar</button>
+                    
+                    <div class="social-login">
+                        <div class="divider">Ou entre com</div>
+                        <div class="social-buttons">
+                            <div class="social-btn">
+                                <i class="fab fa-google"></i>
+                            </div>
+                            <div class="social-btn">
+                                <i class="fab fa-facebook-f"></i>
+                            </div>
+                            <div class="social-btn">
+                                <i class="fab fa-apple"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="signup-link">Não tem uma conta? <a href="#" id="signup-link">Cadastre-se</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feed Screen -->
+        <div id="feed" class="screen">
+            <div class="container">
+                <div class="header">
+                    <h1 class="page-title">ReConecta</h1>
+                    <div class="icon-button">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <div class="profile-image">
+                        <!-- Imagem de perfil mockup -->
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">Ana Silva, 28</h2>
+                        <p class="profile-details">São Paulo • 5km de distância</p>
+                        
+                        <div class="interests">
+                            <span class="interest-tag">Fotografia</span>
+                            <span class="interest-tag">Viagens</span>
+                            <span class="interest-tag">Música</span>
+                            <span class="interest-tag">Café</span>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-action btn-skip">
+                                <i class="fas fa-times"></i>
+                                Pular
+                            </button>
+                            <button class="btn-action btn-connect">
+                                <i class="fas fa-heart"></i>
+                                Conectar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-card">
+                    <div class="profile-image" style="background: linear-gradient(135deg, #FF9A9E, #FAD0C4);">
+                        <!-- Imagem de perfil mockup -->
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name">Carlos Mendes, 32</h2>
+                        <p class="profile-details">Rio de Janeiro • 8km de distância</p>
+                        
+                        <div class="interests">
+                            <span class="interest-tag">Esportes</span>
+                            <span class="interest-tag">Tecnologia</span>
+                            <span class="interest-tag">Cinema</span>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn-action btn-skip">
+                                <i class="fas fa-times"></i>
+                                Pular
+                            </button>
+                            <button class="btn-action btn-connect">
+                                <i class="fas fa-heart"></i>
+                                Conectar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chat" class="screen">
+            <div class="container">
+                <div class="header">
+                    <h1 class="page-title">Conversas</h1>
+                    <div class="icon-button">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                </div>
+                
+                <div class="chat-list">
+                    <div class="chat-item" data-chat="ana">
+                        <div class="chat-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">Ana Silva</div>
+                            <div class="chat-preview">Oi! Você também gosta de fotografia?</div>
+                        </div>
+                        <div class="chat-time">10:25</div>
+                    </div>
+                    
+                    <div class="chat-item" data-chat="carlos">
+                        <div class="chat-avatar" style="background: linear-gradient(135deg, #FF9A9E, #FAD0C4);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">Carlos Mendes</div>
+                            <div class="chat-preview">Vamos marcar de assistir aquele filme?</div>
+                        </div>
+                        <div class="chat-time">Ontem</div>
+                    </div>
+                    
+                    <div class="chat-item" data-chat="juliana">
+                        <div class="chat-avatar" style="background: linear-gradient(135deg, #A1C4FD, #C2E9FB);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-info">
+                            <div class="chat-name">Juliana Costa</div>
+                            <div class="chat-preview">Obrigada pela recomendação de café!</div>
+                        </div>
+                        <div class="chat-time">Seg</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Detail Screen -->
+        <div id="chat-detail" class="screen">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="back-button" id="back-to-chats">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="chat-avatar" id="chat-detail-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="chat-name" id="chat-detail-name">Ana Silva</div>
+                        <div style="font-size: 12px; color: var(--dark-gray);" id="chat-detail-status">Online</div>
+                    </div>
+                    <div class="icon-button">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="icon-button">
+                        <i class="fas fa-video"></i>
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message message-received">
+                        Oi! Você também gosta de fotografia?
+                        <div class="message-time">10:20</div>
+                    </div>
+                    <div class="message message-sent">
+                        Sim, adoro! Principalmente fotografia de paisagens.
+                        <div class="message-time">10:22</div>
+                    </div>
+                    <div class="message message-received">
+                        Que legal! Eu tenho um grupo de fotografia que se reune todo mês.
+                        <div class="message-time">10:23</div>
+                    </div>
+                    <div class="message message-sent">
+                        Interessante! Posso participar da próxima?
+                        <div class="message-time">10:25</div>
+                    </div>
+                </div>
+                
+                <div class="message-input-container">
+                    <input type="text" class="message-input" id="message-input" placeholder="Digite sua mensagem...">
+                    <div class="send-button" id="send-message">
+                        <i class="fas fa-paper-plane"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile" class="screen">
+            <div class="container">
+                <div class="profile-header">
+                    <div class="profile-picture">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h1 class="profile-name-large">Maria Oliveira</h1>
+                    <p class="profile-location">São Paulo, 29 anos</p>
+                    <button class="btn btn-edit">Editar Perfil</button>
+                </div>
+                
+                <div class="profile-section">
+                    <h2 class="section-title">Sobre mim</h2>
+                    <p class="profile-bio">
+                        Sou uma pessoa que adora conhecer novas pessoas e compartilhar experiências. 
+                        Gosto de fotografia, viagens, música e café. Sempre aberta a novas amizades!
+                    </p>
+                </div>
+                
+                <div class="profile-section">
+                    <h2 class="section-title">Meus interesses</h2>
+                    <div class="interests">
+                        <span class="interest-tag">Fotografia</span>
+                        <span class="interest-tag">Viagens</span>
+                        <span class="interest-tag">Música</span>
+                        <span class="interest-tag">Café</span>
+                        <span class="interest-tag">Leitura</span>
+                        <span class="interest-tag">Yoga</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navbar">
+            <div class="nav-item active" data-nav="feed">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-label">Início</span>
+            </div>
+            <div class="nav-item" data-nav="chat">
+                <i class="fas fa-comment nav-icon"></i>
+                <span class="nav-label">Chat</span>
+            </div>
+            <div class="nav-item" data-nav="profile">
+                <i class="fas fa-user nav-icon"></i>
+                <span class="nav-label">Perfil</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicialização quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar todos os event listeners
+            setupEventListeners();
+            
+            // Iniciar carregamento automático após 2.5 segundos
+            setTimeout(() => {
+                if (currentScreen === 'splash') {
+                    showScreen('login');
+                }
+            }, 2500);
+        });
+
+        // Estado da aplicação
+        let currentScreen = 'splash';
+
+        function setupEventListeners() {
+            // Botão de login
+            document.getElementById('login-btn').addEventListener('click', function() {
+                showScreen('feed');
+                updateNavigation('feed');
+            });
+
+            // Link de cadastro
+            document.getElementById('signup-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                showScreen('feed');
+                updateNavigation('feed');
+            });
+
+            // Navegação principal
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const screen = this.getAttribute('data-nav');
+                    showScreen(screen);
+                    updateNavigation(screen);
+                });
+            });
+
+            // Chats individuais
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const chatId = this.getAttribute('data-chat');
+                    openChat(chatId);
+                });
+            });
+
+            // Voltar para lista de chats
+            document.getElementById('back-to-chats').addEventListener('click', function() {
+                showScreen('chat');
+                updateNavigation('chat');
+            });
+
+            // Enviar mensagem
+            document.getElementById('send-message').addEventListener('click', sendMessage);
+            
+            // Enviar mensagem com Enter
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Efeitos de toque nos botões
+            document.querySelectorAll('.btn, .btn-action, .icon-button, .social-btn, .nav-item').forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+                
+                button.addEventListener('mousedown', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('mouseup', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+
+        // Função para pular a tela de splash
+        function skipSplash() {
+            showScreen('login');
+        }
+
+        // Função para mostrar tela
+        function showScreen(screenId) {
+            if (screenId === currentScreen) return;
+            
+            currentScreen = screenId;
+            
+            // Esconder todas as telas
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Mostrar a tela desejada
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Função para abrir chat específico
+        function openChat(chatId) {
+            const chatDetail = document.getElementById('chat-detail');
+            const chatAvatar = document.getElementById('chat-detail-avatar');
+            const chatName = document.getElementById('chat-detail-name');
+            
+            if (chatId === 'ana') {
+                chatName.textContent = 'Ana Silva';
+                chatAvatar.style.background = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+            } else if (chatId === 'carlos') {
+                chatName.textContent = 'Carlos Mendes';
+                chatAvatar.style.background = 'linear-gradient(135deg, #FF9A9E, #FAD0C4)';
+            } else if (chatId === 'juliana') {
+                chatName.textContent = 'Juliana Costa';
+                chatAvatar.style.background = 'linear-gradient(135deg, #A1C4FD, #C2E9FB)';
+            }
+            
+            showScreen('chat-detail');
+        }
+
+        // Função para atualizar navegação ativa
+        function updateNavigation(activeScreen) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItem = document.querySelector(`.nav-item[data-nav="${activeScreen}"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+        }
+
+        // Função para enviar mensagem
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messagesContainer = document.getElementById('chat-messages');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message message-sent';
+                newMessage.innerHTML = `
+                    ${message}
+                    <div class="message-time">Agora</div>
+                `;
+                
+                messagesContainer.appendChild(newMessage);
+                input.value = '';
+                
+                // Scroll para baixo
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Simular resposta após um tempo
+                setTimeout(() => {
+                    const response = document.createElement('div');
+                    response.className = 'message message-received';
+                    response.innerHTML = `
+                        Obrigada pela mensagem! Vou responder em breve.
+                        <div class="message-time">Agora</div>
+                    `;
+                    
+                    messagesContainer.appendChild(response);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
